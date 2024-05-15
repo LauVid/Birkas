@@ -143,11 +143,10 @@ private IEnumerator DealCards(float xOffset, float yOffset, float zOffset)
        
         Vector3 cardPosition = currentPlayer.transform.position + localCardPosition;
 
-        GameObject newCard = Instantiate(CardPrefab, cardPosition, currentPlayer.transform.rotation);
+        GameObject newCard = Instantiate(CardPrefab, cardPosition, currentPlayer.transform.rotation, currentPlayer.transform);
         newCard.name = card;
 
         
-        newCard.transform.parent = currentPlayer.transform;
         selectable.CheckCardParent(newCard);
 
 
