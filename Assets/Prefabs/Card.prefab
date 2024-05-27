@@ -188,3 +188,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   FaceUp: 0
   Strength: 0
+  IsPartOfPakison: 0
+  sprite: {fileID: 0}

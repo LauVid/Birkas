@@ -6,11 +6,20 @@ using UnityEngine.UI;
 
 public class ButtonMngr : MonoBehaviour
 {
+    
     public GameObject HowToPlayPanel;
     public GameObject SettingsPanel;
     public GameObject title;
     public GameMngr gameMngr;
     public GameObject Player;
+
+    public GameObject ControlsBG;
+    public GameObject ControlsToPlayMultiple;
+    public GameObject ControlsToPlayPakison;
+    public GameObject ControlsToPlayMultipleMultiples;
+    public List<GameObject> PlayMultipleCards=new();
+
+    public GameObject QuitScreen;
 
     public Button Take3cards;
     public Button TakeAllcards;
@@ -38,7 +47,6 @@ public class ButtonMngr : MonoBehaviour
         {
             gameMngr.TakeAllCards(Player);           
         }
-
     }
 
     public void StartGame()
@@ -50,6 +58,11 @@ public class ButtonMngr : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
+    public void QuitMidGame()
+    {
+        PlayerPrefs.SetInt("CurrentWinStreak",0);
+        SceneManager.LoadScene("MainMenu");
+    }
     public void ExitToMainMenu()
     {
         SceneManager.LoadScene("MainMenu");
@@ -82,9 +95,4 @@ public class ButtonMngr : MonoBehaviour
         title.SetActive(true);
     }
 
-    public void SetFullscreen()
-    {
-        Debug.Log("Changed fullscreen");
-        Screen.fullScreen=!Screen.fullScreen;
-    }
 }
