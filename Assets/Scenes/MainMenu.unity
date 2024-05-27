@@ -292,13 +292,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 47386373}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.5, y: -0.5, z: 0.5, w: 0.5}
+  m_LocalRotation: {x: -0.5144861, y: -0.48508158, z: 0.48508158, w: 0.5144861}
   m_LocalPosition: {x: 10.15, y: -1.31, z: 0.08893326}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 575882660}
-  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 90}
+  m_LocalEulerAnglesHint: {x: -3.37, y: -90, z: 90}
 --- !u!199 &47386375
 ParticleSystemRenderer:
   serializedVersion: 6
@@ -508,8 +508,8 @@ ParticleSystem:
         m_RotationOrder: 4
     startSpeed:
       serializedVersion: 2
-      minMaxState: 0
-      scalar: 5
+      minMaxState: 3
+      scalar: 7
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -5249,6 +5249,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   audioMixer: {fileID: 24100000, guid: 8d644f69470fd2442be3b3d93eb994d6, type: 2}
+  FullscreenToggle: {fileID: 1534172387}
   MuteToggle: {fileID: 1798391504}
   ResolutionDropdown: {fileID: 1595653186}
 --- !u!1 &112064351
@@ -5982,13 +5983,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 396002594}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.5, y: -0.5, z: 0.5, w: 0.5}
+  m_LocalRotation: {x: -0.5295917, y: -0.46854308, z: 0.46854308, w: 0.5295917}
   m_LocalPosition: {x: 10.04, y: -3.19, z: 0.08893326}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 575882660}
-  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 90}
+  m_LocalEulerAnglesHint: {x: -7, y: -90, z: 90}
 --- !u!199 &396002596
 ParticleSystemRenderer:
   serializedVersion: 6
@@ -6198,8 +6199,8 @@ ParticleSystem:
         m_RotationOrder: 4
     startSpeed:
       serializedVersion: 2
-      minMaxState: 0
-      scalar: 5
+      minMaxState: 3
+      scalar: 7
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -11884,8 +11885,8 @@ ParticleSystem:
         m_RotationOrder: 4
     startSpeed:
       serializedVersion: 2
-      minMaxState: 0
-      scalar: 5
+      minMaxState: 3
+      scalar: 7
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -16538,13 +16539,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 773668142}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.5, y: -0.5, z: 0.5, w: 0.5}
+  m_LocalRotation: {x: -0.41157296, y: -0.574985, z: 0.574985, w: 0.41157296}
   m_LocalPosition: {x: 10.19, y: 3.89, z: 0.08893326}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 575882660}
-  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 90}
+  m_LocalEulerAnglesHint: {x: 18.81, y: -90, z: 90}
 --- !u!1 &795168694
 GameObject:
   m_ObjectHideFlags: 0
@@ -17255,7 +17256,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1.4363, y: -51.3359}
+  m_AnchoredPosition: {x: -0.000010252, y: -9.999979}
   m_SizeDelta: {x: 679.721, y: 232.4089}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1176152539
@@ -17278,13 +17279,17 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Each card has a strength value attached to it. The hierarchy is  9 < 10
-    < J < Q < K < A
+  m_text: 'Each card has a strength value attached to it. The hierarchy is  A > K
+    > Q > J > 10 > 9
 
 
     On your turn you can place a card of the same or stronger
     value than the top card that is on the table, you can also take 3 or all the
     cards from the table, which ends your turn.
+
+
+    Your goal is to get rid of
+    all your cards.
 
 
     Good luck.'
@@ -17869,7 +17874,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.0000081062, y: 117}
+  m_AnchoredPosition: {x: -0.0000081062, y: 139}
   m_SizeDelta: {x: 251.7064, y: 81.5984}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1293180328
@@ -18204,13 +18209,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1411759002}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.5, y: -0.5, z: 0.5, w: 0.5}
+  m_LocalRotation: {x: -0.48440763, y: -0.5151206, z: 0.5151206, w: 0.48440763}
   m_LocalPosition: {x: 10.11, y: 1.03, z: 0.08893326}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 575882660}
-  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 90}
+  m_LocalEulerAnglesHint: {x: 3.52, y: -90, z: 90}
 --- !u!199 &1411759004
 ParticleSystemRenderer:
   serializedVersion: 6
@@ -18420,8 +18425,8 @@ ParticleSystem:
         m_RotationOrder: 4
     startSpeed:
       serializedVersion: 2
-      minMaxState: 0
-      scalar: 5
+      minMaxState: 3
+      scalar: 7
       minScalar: 5
       maxCurve:
         serializedVersion: 2

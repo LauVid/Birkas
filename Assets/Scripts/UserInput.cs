@@ -32,7 +32,7 @@ public class UserInput : MonoBehaviour
     void Update()
     {
         GetMouseClick();
-        if(Input.GetKeyDown(KeyCode.Escape))
+        if(Input.GetKeyDown(KeyCode.Escape)&&!gameMngr.GameEnded)
         {
             if(buttonMngr.QuitScreen.activeSelf==false)
             {

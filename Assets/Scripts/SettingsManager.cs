@@ -8,6 +8,7 @@ using UnityEngine.UI;
 public class SettingsManager : MonoBehaviour
 {   
     public AudioMixer audioMixer;
+    public GameObject FullscreenToggle;
     public GameObject MuteToggle;
     public TMP_Dropdown ResolutionDropdown;
     Resolution[] Resolutions;
@@ -18,10 +19,12 @@ public class SettingsManager : MonoBehaviour
     {
         if(PlayerPrefs.GetInt("IsFullScreen",1)==1)
         {
+            FullscreenToggle.GetComponent<Toggle>().isOn=true;
             Screen.fullScreen=true;
         }
         else
         {
+            FullscreenToggle.GetComponent<Toggle>().isOn=false;
             Screen.fullScreen=false;
         }
         
