@@ -36,14 +36,14 @@ public class ButtonMngr : MonoBehaviour
     }
     public void Take3Cards()
     {
-        if(gameMngr.PlayedCards.transform.childCount>1)
+        if(gameMngr.PlayedCards.transform.childCount>1&&gameMngr.playersTurn)
         {
             gameMngr.Take3Cards(Player);            
         }
     }
     public void TakeAllCards()
     {
-        if(gameMngr.PlayedCards.transform.childCount>1)
+        if(gameMngr.PlayedCards.transform.childCount>1&&gameMngr.playersTurn)
         {
             gameMngr.TakeAllCards(Player);           
         }
@@ -95,4 +95,8 @@ public class ButtonMngr : MonoBehaviour
         title.SetActive(true);
     }
 
+    public void ResetGameData()
+    {
+        PlayerPrefs.DeleteAll();
+    }
 }

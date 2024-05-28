@@ -24,7 +24,11 @@ public class AudioManager : MonoBehaviour
 
     public IEnumerator PlaySound(AudioClip clip, float delay)
     {
+        float pitch=Random.Range(-0.25f,0.25f);
         yield return new WaitForSeconds(delay);
-        soundEffect.PlayOneShot(clip); //does not cancel clips that are already being played 
+        soundEffect.pitch+=pitch;        
+        soundEffect.PlayOneShot(clip); //does not cancel clips that are already being played
+        yield return new WaitForSeconds(clip.length);
+        soundEffect.pitch=1;
     }
 }

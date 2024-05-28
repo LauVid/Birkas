@@ -7,6 +7,8 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
+using DG.Tweening;
+using UnityEngine.Scripting.APIUpdating;
 
 public class GameMngr : MonoBehaviour
 {
@@ -52,11 +54,14 @@ public class GameMngr : MonoBehaviour
     public int ChanceToTakeAll=0;
 
     public bool playersTurn;
+
+    private float CardMovementDuration=1f;
     public float ComputerTurnDelaySeconds=2f;
     private bool Lost=false;
     public bool GameEnded=false;
     public bool AISkipPakison=false;
-    public bool IsReorganizing=false;
+    private float cardMovementDuration;
+    private bool AIPlayedACard=false;
     private List<IObserver> observers = new List<IObserver>();
 
     public bool PlayersTurn
@@ -67,10 +72,33 @@ public class GameMngr : MonoBehaviour
             if (playersTurn != value)
             {
                 playersTurn = value;
-                NotifyObservers();
+                if(value&&AIPlayedACard)
+                {
+                    cardMovementDuration=CardMovementDuration;                    
+                }
+                else
+                {
+                    cardMovementDuration=0;
+                }
+                
+                if(!value&&userInput.AlreadyActivatingButtons)
+                {
+                    userInput.StopActivatingButtons=true;
+                    StartCoroutine(ChangeStopActivatingButtons());
+                }
+                else
+                {
+                    StartCoroutine(userInput.ButtonsSetActive(value,cardMovementDuration));                    
+                }
                 ColorCardsByPlayable();
             }
         }
+    }
+
+    private IEnumerator ChangeStopActivatingButtons()
+    {
+        yield return new WaitForSeconds(.9f);
+        userInput.StopActivatingButtons=false;
     }
 
     public void AddObserver(IObserver observer)
@@ -123,9 +151,7 @@ public class GameMngr : MonoBehaviour
         {
             int k =random.Next(n);
             n--;
-            T temp = List[k];
-            List[k] = List[n];
-            List[n] = temp;
+            (List[n], List[k]) = (List[k], List[n]);
         }
     }
 public void DealCards()
@@ -142,6 +168,7 @@ public void DealCards()
 
 private IEnumerator DealCards(float xOffset, float yOffset, float zOffset)
 {
+        GameObject TopDeckCard = Instantiate(CardPrefab,new Vector3(0,0,20),new Quaternion(0,0,0,0));
     for (int i = 0; i < Deck.Count; i++)
     {
         if(i%4==0)
@@ -162,13 +189,19 @@ private IEnumerator DealCards(float xOffset, float yOffset, float zOffset)
 
        
         Vector3 cardPosition = currentPlayer.transform.position + localCardPosition;
-
-        GameObject newCard = Instantiate(CardPrefab, cardPosition, currentPlayer.transform.rotation, currentPlayer.transform);
+        
+        GameObject newCard = Instantiate(CardPrefab, new Vector3(0,0,0), Quaternion.identity, currentPlayer.transform);
         newCard.name = card;
 
+        newCard.transform.DOMove(cardPosition,.3f);
+        newCard.transform.DORotateQuaternion(currentPlayer.transform.rotation,.3f);
         
         selectable.CheckCardParent(newCard);
 
+        if(i==Deck.Count-2)
+        {
+            Destroy(TopDeckCard);
+        }
 
         xOffset+=0.1f;
         zOffset-=0.01f;
@@ -178,7 +211,7 @@ private IEnumerator DealCards(float xOffset, float yOffset, float zOffset)
     Play9OfDiamonds();
     for(int i=0;i<Players.Count();i++)
     {
-        ReorganizeCards(Players[i],4f);        
+        ReorganizeCards(Players[i],CardMovementDuration);        
     }
 
 }
@@ -195,21 +228,19 @@ private IEnumerator DealCards(float xOffset, float yOffset, float zOffset)
 
     public void PlayCard(GameObject card)
     {
-        StartCoroutine(audioManager.PlaySound(audioManager.Card1,0f));
+        AIPlayedACard=true;
+        StartCoroutine(audioManager.PlaySound(audioManager.Card1,CardMovementDuration-0.4f));
         if(userInput.Stackable(card))
         {
             GameObject WhoPlayedIt=card.transform.parent.gameObject;           
             float randomRotation = Random.Range(-45f, 45f);
             
             card.transform.parent = PlayedCards.transform;
-            ReorganizeCards(WhoPlayedIt,4f);
-            
-            card.transform.position = new Vector3(
-                PlayedCards.transform.position.x,
-                PlayedCards.transform.position.y,
-                PlayedCards.transform.position.z - currentZOffset
-            );
-            card.transform.Rotate(Vector3.forward, randomRotation);
+
+            Vector3 Pos=new(PlayedCards.transform.position.x, PlayedCards.transform.position.y, PlayedCards.transform.position.z - currentZOffset);
+            card.transform.DORotate(new Vector3(0,0,randomRotation), CardMovementDuration);            
+            card.transform.DOMove(Pos,CardMovementDuration);
+            ReorganizeCards(WhoPlayedIt,CardMovementDuration);            
             currentZOffset+=0.01f;   
             userInput.playedCardsList.Add(card);   
             card.GetComponent<Selectable>().FaceUp=true;
@@ -221,53 +252,30 @@ private IEnumerator DealCards(float xOffset, float yOffset, float zOffset)
         }
     }
 
-    public void PlayMultipleCardsQuickReorganize(List<GameObject> cards)
-    {
-        StartCoroutine(audioManager.PlaySound(audioManager.Card1,0f));
-        GameObject WhoPlayedIt=cards[0].transform.parent.gameObject;
-        foreach(GameObject card in cards)
-        {
-            float randomRotation = Random.Range(-45f, 45f);
-            card.transform.parent = PlayedCards.transform;
-            card.transform.position = new Vector3(
-                PlayedCards.transform.position.x,
-                PlayedCards.transform.position.y,
-                PlayedCards.transform.position.z - currentZOffset
-            );    
-            card.transform.Rotate(Vector3.forward, randomRotation);
-            currentZOffset+=0.01f;   
-            userInput.playedCardsList.Add(card);   
-            card.GetComponent<Selectable>().FaceUp=true;
-            card.GetComponent<Selectable>().sprite.color=Color.white;         
-        }
-        ReorganizeCards(WhoPlayedIt,1000f);
-        if(WhoPlayedIt.transform.childCount==0)
-        {
-            WhoPlayedIt.GetComponent<ParticleManager>().SpawnWinParticles();
-        }
-    }
-
-
     public void PlayMultipleCards(List<GameObject> cards)
     {
-        StartCoroutine(audioManager.PlaySound(audioManager.Card1,0f));
+        AIPlayedACard=true;
+        StartCoroutine(audioManager.PlaySound(audioManager.Card1,CardMovementDuration-0.4f));
         GameObject WhoPlayedIt=cards[0].transform.parent.gameObject;
+        float Rotation = Random.Range(-45f,45f);        
         foreach(GameObject card in cards)
         {
-            float randomRotation = Random.Range(-45f, 45f);
             card.transform.parent = PlayedCards.transform;
-            card.transform.position = new Vector3(
+            Vector3 pos = new Vector3(
                 PlayedCards.transform.position.x,
                 PlayedCards.transform.position.y,
                 PlayedCards.transform.position.z - currentZOffset
             );    
-            card.transform.Rotate(Vector3.forward, randomRotation);
+            Vector3 rot =new(0,0,Rotation);
+            Rotation+=5f;
+            card.transform.DOMove(pos,CardMovementDuration);
+            card.transform.DORotate(rot, CardMovementDuration);
             currentZOffset+=0.01f;   
             userInput.playedCardsList.Add(card);   
             card.GetComponent<Selectable>().FaceUp=true;
             card.GetComponent<Selectable>().sprite.color=Color.white;         
         }
-        ReorganizeCards(WhoPlayedIt,4f);
+        ReorganizeCards(WhoPlayedIt,CardMovementDuration);
         if(WhoPlayedIt.transform.childCount==0)
         {
             WhoPlayedIt.GetComponent<ParticleManager>().SpawnWinParticles();
@@ -276,7 +284,8 @@ private IEnumerator DealCards(float xOffset, float yOffset, float zOffset)
 
     public void Play3Nines(List<GameObject> cards)
     {
-        StartCoroutine(audioManager.PlaySound(audioManager.Card1,0f));
+        AIPlayedACard=true;
+        StartCoroutine(audioManager.PlaySound(audioManager.Card1,CardMovementDuration-0.4f));
         GameObject WhoPlayedIt=cards[0].transform.parent.gameObject;
         float rotation=15f;
         float ZOffSet=1f;
@@ -285,18 +294,20 @@ private IEnumerator DealCards(float xOffset, float yOffset, float zOffset)
             card.GetComponent<Selectable>().IsPartOfPakison=true;
             rotation+=15f;
             card.transform.parent = PlayedCards.transform;
-            card.transform.position = new Vector3(
+            Vector3 position = new Vector3(
                 PlayedCards.transform.position.x-2,
                 PlayedCards.transform.position.y,
                 PlayedCards.transform.position.z + ZOffSet
-            );    
-            card.transform.Rotate(Vector3.forward, rotation);
+            );
+            Vector3 rot =new(0,0,rotation);
+            card.transform.DOMove(position,CardMovementDuration);
+            card.transform.DORotate(rot, CardMovementDuration);
             ZOffSet+=0.01f;   
             userInput.playedCardsList.Insert(1,card);   
             card.GetComponent<Selectable>().FaceUp=true;
             card.GetComponent<Selectable>().sprite.color=Color.white;                   
         }         
-        ReorganizeCards(WhoPlayedIt,4f);
+        ReorganizeCards(WhoPlayedIt,CardMovementDuration);
         if(WhoPlayedIt.transform.childCount==0)
         {
             WhoPlayedIt.GetComponent<ParticleManager>().SpawnWinParticles();
@@ -308,15 +319,16 @@ private IEnumerator DealCards(float xOffset, float yOffset, float zOffset)
         card.transform.parent = PlayedCards.transform;
 
             
-            card.transform.position = new Vector3(
+            Vector3 position = new Vector3(
                 PlayedCards.transform.position.x,
                 PlayedCards.transform.position.y,
                 PlayedCards.transform.position.z
-            );          
+            );
+            card.transform.DOMove(position,CardMovementDuration);
         userInput.playedCardsList.Add(card);
 
 
-        ReorganizeCards(Players[WhoHad9Id],4f);
+        ReorganizeCards(Players[WhoHad9Id],CardMovementDuration);
         for(int i = WhoHad9Id+1;i<4;i++)
         {
             yield return new WaitForSeconds(2f);
@@ -397,6 +409,7 @@ private IEnumerator DealCards(float xOffset, float yOffset, float zOffset)
 
     public void Take3Cards(GameObject player)
     {
+        AIPlayedACard=false;
         StartCoroutine(audioManager.PlaySound(audioManager.Card2,0f));
         int CardListCount = userInput.playedCardsList.Count;
         int CardsToTake = Mathf.Min(3, CardListCount - 1); 
@@ -439,11 +452,11 @@ private IEnumerator DealCards(float xOffset, float yOffset, float zOffset)
                     {
                         card.GetComponent<Selectable>().FaceUp=false;
                     }
-                    card.rotation = player.transform.rotation;
+                    card.DORotateQuaternion(player.transform.rotation,CardMovementDuration);
                     userInput.playedCardsList.Remove(card.gameObject);
                     if(userInput.playedCardsList.Count==1)
                     {
-                        ReorganizeCards(player,15f);
+                        ReorganizeCards(player,CardMovementDuration);
                         CheckForPakison(player);
                         if (player.name=="Player")
                         {
@@ -461,13 +474,12 @@ private IEnumerator DealCards(float xOffset, float yOffset, float zOffset)
                 {
                     Card.GetComponent<Selectable>().FaceUp=false;
                 }
-
-                Card.transform.rotation = player.transform.rotation;
+                Card.transform.DORotateQuaternion(player.transform.rotation,CardMovementDuration);
                 userInput.playedCardsList.Remove(Card);
             }
         }
 
-        ReorganizeCards(player,15f);
+        ReorganizeCards(player,CardMovementDuration);
         CheckForPakison(player);
         if (player.name=="Player")
         {
@@ -588,6 +600,7 @@ private IEnumerator DealCards(float xOffset, float yOffset, float zOffset)
                 {
                     GameEnded=true;
                     ComputerTurnDelaySeconds=0.5f;
+                    CardMovementDuration=0.49f;
                     Lost=true;
                     ManageCurrentWinStreak(false);
                     LosePanel.SetActive(true);
@@ -617,6 +630,7 @@ private IEnumerator DealCards(float xOffset, float yOffset, float zOffset)
 
     public void TakeAllCards(GameObject player)
     {
+        AIPlayedACard=false;
         StartCoroutine(audioManager.PlaySound(audioManager.Card2,0f));
         int CardListCount = userInput.playedCardsList.Count;
 
@@ -639,12 +653,12 @@ private IEnumerator DealCards(float xOffset, float yOffset, float zOffset)
                     Card.GetComponent<Selectable>().FaceUp=false;                         
                 }
 
-                Card.transform.rotation = player.transform.rotation;
+                Card.transform.DORotateQuaternion(player.transform.rotation,CardMovementDuration);
                 userInput.playedCardsList.Remove(Card);
             }
         }
         CheckForPakison(player);
-        ReorganizeCards(player,15f);
+        ReorganizeCards(player,CardMovementDuration);
         if (player.name=="Player")
         {
             StartCoroutine(PcTurn());
@@ -652,7 +666,7 @@ private IEnumerator DealCards(float xOffset, float yOffset, float zOffset)
     }
 
 
-    public void ReorganizeCards(GameObject player,float speed)
+    public void ReorganizeCards(GameObject player,float duration)
     {
         Transform playerTransform = player.transform;
         List<Transform> cards = new();
@@ -703,40 +717,32 @@ private IEnumerator DealCards(float xOffset, float yOffset, float zOffset)
         }
 
         Vector3 PreviousCardPosition=new(0,0,0);
-        // Vector3 FirstCardPosition=new(0,0,0);
-        // Vector3 LastCardPosition=new(0,0,0);
         for (int i = 0; i < cards.Count; i++)
         {
             Vector3 AddToPosition=new(xOffset*j,yOffset*j,zOffset*j);
             
             if(i==0)
             {
-                StartCoroutine(MoveObjectToLocation(cards[i].transform,playerTransform.position,speed));
+                cards[i].transform.DOMove(playerTransform.position,duration);
+                //StartCoroutine(MoveObjectToLocation(cards[i].transform,playerTransform.position,speed));
                 PreviousCardPosition=playerTransform.position;
-                // FirstCardPosition=playerTransform.position;
             }
             else if(cards[i-1].GetComponent<Selectable>().Strength == cards[i].GetComponent<Selectable>().Strength)
             {
                 //PLACE CARD BEHIND IT
-                StartCoroutine(MoveObjectToLocation(cards[i].transform,PreviousCardPosition+AddToPositionBehind,speed));
+                cards[i].transform.DOMove(PreviousCardPosition+AddToPositionBehind,duration);
+                //StartCoroutine(MoveObjectToLocation(cards[i].transform,PreviousCardPosition+AddToPositionBehind,speed));
                 PreviousCardPosition+=AddToPositionBehind;
             }
             else
             {
                 //GO TO THE SIDE AND PLACE IT THERE
-                StartCoroutine(MoveObjectToLocation(cards[i].transform,playerTransform.position+AddToPosition,speed));
+                cards[i].transform.DOMove(playerTransform.position+AddToPosition,duration);
+                //StartCoroutine(MoveObjectToLocation(cards[i].transform,playerTransform.position+AddToPosition,speed));
                 PreviousCardPosition=playerTransform.position+AddToPosition;
                 j++;
             }
         }
-        // LastCardPosition=PreviousCardPosition;
-        // float MiddleOfAllCards=LastCardPosition.x+FirstCardPosition.x;
-        // Vector3 GoalPosition=new (player.transform.position.x-MiddleOfAllCards,player.transform.position.y,player.transform.position.z);
-        // if(player.name=="Player")
-        // {
-        //     StartCoroutine(MoveObjectToLocation(player.transform,GoalPosition,6f));            
-        // }
-
     }
 
     public IEnumerator MoveObjectToLocation(Transform Card, Vector3 EndLocation,float speed)

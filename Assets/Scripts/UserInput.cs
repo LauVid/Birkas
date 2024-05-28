@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 
 public class UserInput : MonoBehaviour
@@ -15,6 +16,9 @@ public class UserInput : MonoBehaviour
     public List<GameObject> SameStrengthCards=new();
     private List<GameObject> AnotherMultipleOf4=new();
     public bool HasMultipleGroupsOf4=false;
+
+    public bool AlreadyActivatingButtons=false;
+    public bool StopActivatingButtons=false;
 
     public List<GameObject> playedCardsList = new List<GameObject>();
 
@@ -74,7 +78,7 @@ public class UserInput : MonoBehaviour
                         AnotherMultipleOf4=gameMngr.Find4OfSame(gameMngr.Players[0],SameStrengthCards[0].GetComponent<Selectable>().Strength);
                         if(AnotherMultipleOf4.Count==4)
                         {
-                            gameMngr.PlayMultipleCardsQuickReorganize(SameStrengthCards);
+                            gameMngr.PlayMultipleCards(SameStrengthCards);
                         }
                         else
                         {
@@ -95,8 +99,8 @@ public class UserInput : MonoBehaviour
                         {
                             HasMultipleGroupsOf4=true;
                             CardHasBeenSelected=true;
-                            ButtonsSetActive(false);
-                            foreach(GameObject Card in SameStrengthCards)
+                            StartCoroutine(ButtonsSetActive(false,0));
+                            foreach (GameObject Card in SameStrengthCards)
                             {  
                                 Card.tag="SelectedCard";
                                 Card.transform.GetComponent<SpriteRenderer>().color=Color.yellow;
@@ -166,7 +170,7 @@ public class UserInput : MonoBehaviour
         }
         if(Input.GetMouseButtonDown(2)&&CardHasBeenSelected)
         {
-            ButtonsSetActive(true);
+            StartCoroutine(ButtonsSetActive(true,0));
             DeselectCard(SameStrengthCards);
 
             if(HasMultipleGroupsOf4)
@@ -215,10 +219,43 @@ public class UserInput : MonoBehaviour
         buttonMngr.ControlsToPlayMultipleMultiples.SetActive(b);
     }
 
-    public void ButtonsSetActive(bool b)
+    public IEnumerator ButtonsSetActive(bool b,float delay)
     {
-        buttonMngr.Take3cards.gameObject.SetActive(b);
-        buttonMngr.TakeAllcards.gameObject.SetActive(b);
+        AlreadyActivatingButtons=true;
+        yield return new WaitForSeconds(delay);
+        if(!StopActivatingButtons&&!CardHasBeenSelected)
+        {
+            if(playedCardsList.Count>3)
+            {
+                buttonMngr.Take3cards.GetComponentInChildren<TextMeshProUGUI>().text="Take 3 cards";
+            }
+            else if(playedCardsList.Count==3)
+            {
+                buttonMngr.Take3cards.GetComponentInChildren<TextMeshProUGUI>().text="Take 2 cards";
+            }
+            else if(playedCardsList.Count==2)
+            {
+                buttonMngr.Take3cards.GetComponentInChildren<TextMeshProUGUI>().text="Take 1 card";
+            }
+
+            if(b&&playedCardsList.Count>1)
+            {
+                buttonMngr.Take3cards.gameObject.SetActive(b);                
+            }
+            else
+            {
+                buttonMngr.Take3cards.gameObject.SetActive(false); 
+            }
+            if(b&&playedCardsList.Count>4)
+            {
+                buttonMngr.TakeAllcards.gameObject.SetActive(b);                     
+            }
+            else
+            {
+                buttonMngr.TakeAllcards.gameObject.SetActive(false);
+            }
+        }
+        AlreadyActivatingButtons=false;
     }
 
     void ClickedCard(GameObject selected)
@@ -244,8 +281,8 @@ public class UserInput : MonoBehaviour
             if(SameStrengthCount==3)
             {
                 CardHasBeenSelected=true;
-                ButtonsSetActive(false);
-                foreach(GameObject Card in SameStrengthCards)
+                StartCoroutine(ButtonsSetActive(false,0));
+                foreach (GameObject Card in SameStrengthCards)
                 {  
                     Card.tag="SelectedCard";
                     Card.transform.GetComponent<SpriteRenderer>().color=Color.yellow;
@@ -277,8 +314,8 @@ public class UserInput : MonoBehaviour
                 if(SameStrengthCount==4)
                 {
                     CardHasBeenSelected=true;
-                    ButtonsSetActive(false);
-                    foreach(GameObject Card in SameStrengthCards)
+                    StartCoroutine(ButtonsSetActive(false,0));
+                    foreach (GameObject Card in SameStrengthCards)
                     {  
                         Card.tag="SelectedCard";
                         Card.transform.GetComponent<SpriteRenderer>().color=Color.yellow;
