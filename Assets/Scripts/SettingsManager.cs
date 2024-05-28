@@ -17,16 +17,16 @@ public class SettingsManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if(PlayerPrefs.GetInt("IsFullScreen",1)==1)
-        {
-            FullscreenToggle.GetComponent<Toggle>().isOn=true;
-            Screen.fullScreen=true;
-        }
-        else
-        {
-            FullscreenToggle.GetComponent<Toggle>().isOn=false;
-            Screen.fullScreen=false;
-        }
+        // if(PlayerPrefs.GetInt("IsFullScreen",1)==1)
+        // {
+        //     FullscreenToggle.GetComponent<Toggle>().isOn=true;
+        //     Screen.fullScreen=true;
+        // }
+        // else
+        // {
+        //     FullscreenToggle.GetComponent<Toggle>().isOn=false;
+        //     Screen.fullScreen=false;
+        // }
         
         if(PlayerPrefs.GetInt("MuteAudio",0)==0)
         {
@@ -39,32 +39,32 @@ public class SettingsManager : MonoBehaviour
             audioMixer.SetFloat("Volume",-80f);
         }
 
-        Resolutions = Screen.resolutions;
-        ResolutionDropdown.ClearOptions();
+        // Resolutions = Screen.resolutions;
+        // ResolutionDropdown.ClearOptions();
 
-        HashSet<string> UniqueResolutions = new HashSet<string>();
-        List<string> ScreenSizes = new List<string>();
+        // HashSet<string> UniqueResolutions = new HashSet<string>();
+        // List<string> ScreenSizes = new List<string>();
 
-        for (int i = 0; i < Resolutions.Length; i++)
-        {
-            string Option = Resolutions[i].width + " x " + Resolutions[i].height;
+        // for (int i = 0; i < Resolutions.Length; i++)
+        // {
+        //     string Option = Resolutions[i].width + " x " + Resolutions[i].height;
 
-            if (UniqueResolutions.Add(Option))
-            {
-                ScreenSizes.Add(Option);
-                UniqueResolutionsList.Add(Resolutions[i]);
-            }
+        //     if (UniqueResolutions.Add(Option))
+        //     {
+        //         ScreenSizes.Add(Option);
+        //         UniqueResolutionsList.Add(Resolutions[i]);
+        //     }
 
-            if (Resolutions[i].width == Screen.currentResolution.width &&
-                Resolutions[i].height == Screen.currentResolution.height)
-            {
-                CurrentResolutionIndex = PlayerPrefs.GetInt("ResolutionIndex",UniqueResolutionsList.Count - 1);
-            }
-        }
+        //     if (Resolutions[i].width == Screen.currentResolution.width &&
+        //         Resolutions[i].height == Screen.currentResolution.height)
+        //     {
+        //         CurrentResolutionIndex = PlayerPrefs.GetInt("ResolutionIndex",UniqueResolutionsList.Count - 1);
+        //     }
+        // }
 
-        ResolutionDropdown.AddOptions(ScreenSizes);
-        ResolutionDropdown.value = CurrentResolutionIndex;
-        ResolutionDropdown.RefreshShownValue();
+        // ResolutionDropdown.AddOptions(ScreenSizes);
+        // ResolutionDropdown.value = CurrentResolutionIndex;
+        // ResolutionDropdown.RefreshShownValue();
     }
 
     // Update is called once per frame
