@@ -1,2 +1,2 @@
-# Untitled-Card-Game
-Game created for Design of multimedia systems module
+# Birkas
+Game created for Fundementals Of Game Development module
